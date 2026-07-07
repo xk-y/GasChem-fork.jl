@@ -331,5 +331,11 @@ end
     sys, k_var = compile_rate_law(GasChem.rate_ALK(t, T, num_density, a0, b0, c0, n, x0, y0))
     prob = ODEProblem(sys, [], (0.0, 3600.0))
     k_val = getsym(prob, k_var)(prob)
-    @test k_val ≈ 0.00018517572785290386
+    # Expected value reflects the corrected rate_ALK temperature-exponent
+    # parenthesization (matches GEOS-Chem fullchem_RateLawFuncs.F90 GC_ALK).
+    @test k_val ≈ 0.00018430587467471127
+    # Cold-temperature branch: guards the exp((c0 - x0*num_density) * (1/T - 1/300))
+    # grouping — a mis-parenthesization only diverges away from 300 K.
+    prob_cold = ODEProblem(sys, [T => 250.0], (0.0, 3600.0))
+    @test getsym(prob_cold, k_var)(prob_cold) ≈ 0.00022289914232641306
 end
