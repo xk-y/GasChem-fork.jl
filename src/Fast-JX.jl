@@ -1010,6 +1010,14 @@ const σ_BrCl_interp = create_fjx_interp(
 # GEOS-Chem 14.1.1 photolyzed via generic surrogates (CH3OOH / CH3NO3). The 18-bin layout
 # was verified against the port's σ_CH3OOH (17/18 bins identical; bin 17 is a minor v7.3e
 # revision), so these values share the port's bin grid and are directly usable.
+#
+# Bin 17: v7.3e defines it as 345-412.5 nm (flux 1.547e16) while this file's top_flux is
+# Cloud-J v8.0 (345-485 nm, flux 4.721e16). The seven species below with nonzero v7.3e
+# bin-17 σ are rescaled by 1.547/4.721 so that σ·flux — the only combination entering
+# j_mean — reproduces the v7.3e-intended bin-17 J contribution under the v8.0 flux
+# (i.e. assumes negligible absorption in 412-485 nm, where these spectra have decayed).
+# TODO: replace with the true v8.0-grid rows from the GEOS-Chem runtime CHEM_INPUTS
+# FJX_spec.dat (not in the source-tree Cloud-J tables) when regenerating this block.
 # ONIT1 (dedicated cross-section, GEOS-Chem Cloud-J v7.3e)
 const ϕ_ONIT1_jx = 1.0f0
 const σ_ONIT1 = SA_F32[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1.099e-20, 4.532e-21, 1.951e-21, 7.55e-22, 3.3e-22, 0, 0]
@@ -1027,8 +1035,8 @@ const σ_ETNO3_interp = create_fjx_interp([240.0f0, 298.0f0],
 const ϕ_IPRNO3_jx = 1.0f0
 const σ_IPRNO3_interp = create_fjx_interp([240.0f0, 298.0f0],
     [
-        SA_F32[1.61e-17, 1.702e-17, 1.619e-17, 1.508e-17, 1.07e-17, 5.987e-18, 4.98e-18, 2.65e-18, 4.545e-20, 1.059e-19, 1.503e-19, 9.44e-21, 4.364e-21, 1.959e-21, 8.569e-22, 1.177e-22, 1.212e-24, 0],
-        SA_F32[1.61e-17, 1.702e-17, 1.619e-17, 1.508e-17, 1.07e-17, 5.987e-18, 4.98e-18, 2.65e-18, 5.23e-20, 1.101e-19, 1.537e-19, 1.242e-20, 6.091e-21, 2.921e-21, 1.392e-21, 2.235e-22, 1.212e-24, 0],
+        SA_F32[1.61e-17, 1.702e-17, 1.619e-17, 1.508e-17, 1.07e-17, 5.987e-18, 4.98e-18, 2.65e-18, 4.545e-20, 1.059e-19, 1.503e-19, 9.44e-21, 4.364e-21, 1.959e-21, 8.569e-22, 1.177e-22, 3.9715e-25, 0],
+        SA_F32[1.61e-17, 1.702e-17, 1.619e-17, 1.508e-17, 1.07e-17, 5.987e-18, 4.98e-18, 2.65e-18, 5.23e-20, 1.101e-19, 1.537e-19, 1.242e-20, 6.091e-21, 2.921e-21, 1.392e-21, 2.235e-22, 3.9715e-25, 0],
     ])
 
 # NPRNO3 (dedicated cross-section, GEOS-Chem Cloud-J v7.3e)
@@ -1048,12 +1056,12 @@ const σ_MACRN_interp = [(T) -> σ_MACRN[i] for i in 1:18]
 
 # MACRNP (dedicated cross-section, GEOS-Chem Cloud-J v7.3e)
 const ϕ_MACRNP_jx = 1.0f0
-const σ_MACRNP = SA_F32[0, 0, 0, 0, 0, 7.8e-20, 7.205e-20, 5.625e-20, 6.79e-21, 6.85e-21, 5.358e-21, 3.46e-20, 3.242e-20, 2.843e-20, 2.567e-20, 1.63e-20, 1.734e-23, 0]
+const σ_MACRNP = SA_F32[0, 0, 0, 0, 0, 7.8e-20, 7.205e-20, 5.625e-20, 6.79e-21, 6.85e-21, 5.358e-21, 3.46e-20, 3.242e-20, 2.843e-20, 2.567e-20, 1.63e-20, 5.6821e-24, 0]
 const σ_MACRNP_interp = [(T) -> σ_MACRNP[i] for i in 1:18]
 
 # ICN (dedicated cross-section, GEOS-Chem Cloud-J v7.3e)
 const ϕ_ICN_jx = 1.0f0
-const σ_ICN = SA_F32[0, 0, 0, 0, 0, 0, 0, 0, 1.733e-21, 5.229e-21, 9.629e-21, 1.55e-20, 2.62e-20, 2.945e-20, 3.337e-20, 3.625e-20, 7.3e-21, 0]
+const σ_ICN = SA_F32[0, 0, 0, 0, 0, 0, 0, 0, 1.733e-21, 5.229e-21, 9.629e-21, 1.55e-20, 2.62e-20, 2.945e-20, 3.337e-20, 3.625e-20, 2.3921e-21, 0]
 const σ_ICN_interp = [(T) -> σ_ICN[i] for i in 1:18]
 
 # ETHLN (dedicated cross-section, GEOS-Chem Cloud-J v7.3e)
@@ -1063,22 +1071,22 @@ const σ_ETHLN_interp = [(T) -> σ_ETHLN[i] for i in 1:18]
 
 # NITP (dedicated cross-section, GEOS-Chem Cloud-J v7.3e)
 const ϕ_NITP_jx = 1.0f0
-const σ_NITP = SA_F32[0, 0, 0, 0, 0, 3.12e-19, 2.882e-19, 2.25e-19, 2.716e-20, 2.74e-20, 2.143e-20, 1.661e-20, 8.052e-21, 4.354e-21, 2.452e-21, 1.053e-21, 6.973e-23, 0]
+const σ_NITP = SA_F32[0, 0, 0, 0, 0, 3.12e-19, 2.882e-19, 2.25e-19, 2.716e-20, 2.74e-20, 2.143e-20, 1.661e-20, 8.052e-21, 4.354e-21, 2.452e-21, 1.053e-21, 2.2849e-23, 0]
 const σ_NITP_interp = [(T) -> σ_NITP[i] for i in 1:18]
 
 # HMHP (dedicated cross-section, GEOS-Chem Cloud-J v7.3e)
 const ϕ_HMHP_jx = 1.0f0
-const σ_HMHP = SA_F32[0, 0, 0, 0, 0, 2.184e-19, 2.017e-19, 1.575e-19, 1.901e-20, 1.918e-20, 1.5e-20, 3.937e-21, 2.464e-21, 1.682e-21, 1.188e-21, 5.061e-22, 4.881e-23, 0]
+const σ_HMHP = SA_F32[0, 0, 0, 0, 0, 2.184e-19, 2.017e-19, 1.575e-19, 1.901e-20, 1.918e-20, 1.5e-20, 3.937e-21, 2.464e-21, 1.682e-21, 1.188e-21, 5.061e-22, 1.5994e-23, 0]
 const σ_HMHP_interp = [(T) -> σ_HMHP[i] for i in 1:18]
 
 # HP2 (dedicated cross-section, GEOS-Chem Cloud-J v7.3e)
 const ϕ_HP2_jx = 1.0f0
-const σ_HP2 = SA_F32[0, 0, 0, 0, 0, 6.24e-19, 5.764e-19, 4.5e-19, 5.432e-20, 5.48e-20, 4.286e-20, 1.125e-20, 7.04e-21, 4.806e-21, 3.394e-21, 1.446e-21, 1.395e-22, 0]
+const σ_HP2 = SA_F32[0, 0, 0, 0, 0, 6.24e-19, 5.764e-19, 4.5e-19, 5.432e-20, 5.48e-20, 4.286e-20, 1.125e-20, 7.04e-21, 4.806e-21, 3.394e-21, 1.446e-21, 4.5712e-23, 0]
 const σ_HP2_interp = [(T) -> σ_HP2[i] for i in 1:18]
 
 # ENOL (dedicated cross-section, GEOS-Chem Cloud-J v7.3e)
 const ϕ_ENOL_jx = 1.0f0
-const σ_ENOL = SA_F32[0, 0, 0, 0, 0, 0, 0, 0, 1.375e-20, 1.085e-20, 1.305e-20, 1.6e-20, 2.125e-20, 2.61e-20, 3.045e-20, 3.295e-20, 8.25e-21, 0]
+const σ_ENOL = SA_F32[0, 0, 0, 0, 0, 0, 0, 0, 1.375e-20, 1.085e-20, 1.305e-20, 1.6e-20, 2.125e-20, 2.61e-20, 3.045e-20, 3.295e-20, 2.7034e-21, 0]
 const σ_ENOL_interp = [(T) -> σ_ENOL[i] for i in 1:18]
 
 """
